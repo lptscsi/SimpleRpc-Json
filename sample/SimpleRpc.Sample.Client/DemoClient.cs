@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace SimpleRpc.Sample.Client
@@ -42,15 +43,22 @@ namespace SimpleRpc.Sample.Client
 
         public async Task TestReturnGenericType(int iterations = 10000)
         {
-            List<string> list = new List<string>();
+            List<TestDto> list = new List<TestDto>();
             for (int i = 0; i < 10; ++i)
             {
-                list.Add($"Item {i} RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR VVVVVVVVVVVVVVVVVVVVVVVV ФФФФФФФФФФФФФФФФФФФФФФФФФФФФФ TTTTTTTTTTTTTTTTTTTTT");
+                list.Add(new TestDto()
+                {
+                    Id= Guid.NewGuid(),
+                    Name= $"Test Name lorem ipsum abra cadabra qwertyuiopasdfghjklzxcvbnm {i}",
+                    Date= DateTime.Now,
+                });
             }
 
-            var res2 = await service.ReturnGenericType<string>(list);
+            //Console.WriteLine($"ReturnGenericType Items Count: {list?.Count} First Id: {list.First().Id} Date: {list.First().Date.ToString("o")}");
 
-            Console.WriteLine($"ReturnGenericType Count: {res2?.Count}");
+            var res2 = await service.ReturnGenericType(list);
+
+            Console.WriteLine($"ReturnGenericType Items Count: {res2?.Count} First Id: {res2.First().Id} Date: {res2.First().Date.ToString("o")}");
 
             ParallelOptions parallelOptions = new()
             {
@@ -64,7 +72,7 @@ namespace SimpleRpc.Sample.Client
 
             await Parallel.ForEachAsync(ints, parallelOptions, async (id, _) =>
             {
-                var res = await service.ReturnGenericType<string>(list);
+                var res = await service.ReturnGenericType(list);
             });
 
         
