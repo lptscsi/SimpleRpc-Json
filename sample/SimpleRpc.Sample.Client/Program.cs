@@ -43,13 +43,7 @@ namespace SimpleRpc.Sample.Client
                 Console.WriteLine("Wait a little ... for the server be started");
                 await Task.Delay(2000);
 
-                List<Task> tasks = new List<Task>();
-                for (int i = 0; i < 2; ++i)
-                {
-                    tasks.Add(action());
-                }
-
-                await Task.WhenAll(tasks);
+                await action();
             }
 
             Console.ReadLine();

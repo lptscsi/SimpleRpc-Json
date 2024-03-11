@@ -32,7 +32,7 @@ namespace SimpleRpc.Sample.Client
             Console.WriteLine($"ReturnStream: {streamData}");
         }
 
-        public async Task TestConcatAsync(int iterations = 1000)
+        public async Task TestConcatAsync(int iterations = 5000)
         {
             var startTime = DateTime.Now;
             
