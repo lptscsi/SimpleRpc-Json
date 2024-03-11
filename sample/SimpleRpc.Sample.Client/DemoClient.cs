@@ -47,7 +47,7 @@ namespace SimpleRpc.Sample.Client
             Console.WriteLine($"End ConcatAsync: Time {diff}, Performance: {(iterations / diff.TotalMilliseconds) * 1000} msg/sec");
         }
 
-        public async Task TestReturnGenericType(int iterations = 10000)
+        public async Task TestReturnGenericType(int iterations = 25000)
         {
             List<TestDto> list = new List<TestDto>();
             for (int i = 0; i < 10; ++i)

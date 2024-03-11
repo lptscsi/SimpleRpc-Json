@@ -1,52 +1,13 @@
 ﻿using Fasterflect;
-using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SimpleRpc.Transports.Abstractions.Client
 {
-    public class RoutableProxy : DispatchProxy
-    {
-        private BaseClientTransport? _transport;
-
-        public RoutableProxy()
-        { }
-
-    
-        public static T Create<T>(BaseClientTransport<T> transport)
-            where T : class
-        {
-            if (transport == null)
-                throw new ArgumentNullException(nameof(transport));
-
-            object proxy = Create<T, RoutableProxy>();
-            var routableProxy = (RoutableProxy)proxy;
-
-            routableProxy._transport = transport;
-
-            return (T)proxy;
-        }
-
-        /// <inheritdoc/>
-        protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
-        {
-            if (_transport == null)
-                throw new InvalidOperationException("Proxy transport is NULL");
-    
-            if (targetMethod == null)
-            {
-                return null;
-            }
-
-            return _transport.Invoke(targetMethod, args);
-        }
-    }
-
-
     public abstract class BaseClientTransport : IClientTransport
     {
-        private static ConcurrentDictionary<MethodInfo, MethodModelCache> _metadata = new ConcurrentDictionary<MethodInfo, MethodModelCache>();
+        private ConcurrentDictionary<MethodInfo, MethodModelCache> _metadata = new ConcurrentDictionary<MethodInfo, MethodModelCache>();
 
         public abstract object HandleSync(RpcRequest rpcRequest);
 

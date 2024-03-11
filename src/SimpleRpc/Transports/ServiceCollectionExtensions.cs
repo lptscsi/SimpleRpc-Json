@@ -67,7 +67,7 @@ namespace SimpleRpc.Transports
 
             services.TryAddSingleton<T>(sp => {
                 BaseClientTransport clientTransport = sp.GetService<IClientConfigurationManager>().Get(clientName);
-                return RoutableProxy.Create<T>((BaseClientTransport<T>)clientTransport);
+                return RpcProxy.Create<T>((BaseClientTransport<T>)clientTransport);
              });
 
             return services;
