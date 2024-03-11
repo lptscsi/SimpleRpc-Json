@@ -2,9 +2,7 @@
 using SimpleRpc.Transports.Abstractions.Client;
 using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,7 +57,7 @@ namespace SimpleRpc.Transports.Http.Client
                         return _serializer.UnpackResult<T>(rpcRequest, rpcResponse);
                     }
                     else if (responseMediaType == System.Net.Mime.MediaTypeNames.Application.Octet 
-                        &&  (typeof(T) == typeof(object) || typeof(Stream).IsAssignableTo(typeof(T)))
+                        &&  (typeof(T) == typeof(object) || typeof(Stream).IsAssignableFrom(typeof(T)))
                         )
                     {
                         MemoryStream memoryStream = new MemoryStream();
@@ -75,32 +73,4 @@ namespace SimpleRpc.Transports.Http.Client
             }
         }
     }
-
-    internal class SerializableContent : HttpContent
-    {
-        private readonly IMessageSerializer _serializer;
-        private readonly RpcRequest _request;
-
-        public SerializableContent(IMessageSerializer serializer, RpcRequest request)
-        {
-            _serializer = serializer;
-            _request = request;
-            Headers.ContentType = new MediaTypeHeaderValue(_serializer.ContentType);
-        }
-
-        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext context)
-        {
-            MemoryStream memoryStream = new MemoryStream();
-            await _serializer.Serialize(_request, memoryStream);
-            memoryStream.Position = 0;
-            await memoryStream.CopyToAsync(stream);
-        }
-
-        protected override bool TryComputeLength(out long length)
-        {
-            length = -1;
-            return false;
-        }
-    }
-
 }
