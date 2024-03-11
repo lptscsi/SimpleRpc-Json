@@ -32,17 +32,24 @@ namespace SimpleRpc.Sample.Client
             Console.WriteLine($"ReturnStream: {streamData}");
         }
 
-        public async Task TestConcatAsync(int iterations = 5000)
+        public async Task TestConcatAsync(int iterations = 25000)
         {
+
+            IEnumerable<int> ints = Enumerable.Range(0, iterations);
+
             var startTime = DateTime.Now;
             
             Console.WriteLine($"Start ConcatAsync Iterations: {iterations}");
+            ParallelOptions parallelOptions = new()
+            {
+                MaxDegreeOfParallelism = 8
+            };
 
-            for (int i = 0; i < iterations; ++i)
+            await Parallel.ForEachAsync(ints, parallelOptions, async (id, _) =>
             {
                 string res1 = await service.ConcatAsync("sadasd", "asdsd");
-            }
-
+            });
+       
             var diff = DateTime.Now - startTime;
             Console.WriteLine($"End ConcatAsync: Time {diff}, Performance: {(iterations / diff.TotalMilliseconds) * 1000} msg/sec");
         }
