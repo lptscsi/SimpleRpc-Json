@@ -46,12 +46,32 @@ namespace SimpleRpc.Transports.Http.Server
                     try
                     {
                         RpcRequest rpcRequest = await serializer.Deserialize<RpcRequest>(context.Request.Body);
-                        RpcResponse rpcResponse = await _rpcServer.Invoke(rpcRequest);
-                        context.Response.ContentType = serializer.ContentType;
-                        MemoryStream memoryStream = new MemoryStream();
-                        await serializer.Serialize(rpcResponse, memoryStream);
-                        memoryStream.Seek(0, SeekOrigin.Begin);
-                        await memoryStream.CopyToAsync(context.Response.Body);
+                        object rpcResponse = await _rpcServer.Invoke(rpcRequest);
+
+                        if (rpcResponse is RpcResponse)
+                        {
+                            context.Response.ContentType = serializer.ContentType;
+                            MemoryStream memoryStream = new MemoryStream();
+                            await serializer.Serialize(rpcResponse, memoryStream);
+                            memoryStream.Seek(0, SeekOrigin.Begin);
+                            await memoryStream.CopyToAsync(context.Response.Body);
+                        }
+                        else if (rpcResponse is Stream stream)
+                        {
+                            try
+                            {
+                                context.Response.ContentType = System.Net.Mime.MediaTypeNames.Application.Octet;
+                                await stream.CopyToAsync(context.Response.Body);
+                            }
+                            finally
+                            {
+                                stream.Dispose();
+                            }
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException($"Unexpected response type: { rpcResponse?.GetType().Name ?? "null" }");
+                        }
                     }
                     catch (Exception e)
                     {

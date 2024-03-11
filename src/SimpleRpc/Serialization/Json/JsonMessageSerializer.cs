@@ -15,7 +15,7 @@ namespace SimpleRpc.Serialization.Json
 
         public string Name => Constants.DefaultSerializers.Json;
 
-        public string ContentType => "application/json";
+        public string ContentType => System.Net.Mime.MediaTypeNames.Application.Json;
 
         public Task Serialize<T>(T message, Stream stream)
         {

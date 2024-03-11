@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SimpleRpc.Sample.Client
@@ -24,6 +26,10 @@ namespace SimpleRpc.Sample.Client
             Console.WriteLine("Calling Concat Method: " + service.Concat("Foo", "Bar"));
 
             await service.WriteFooAsync("TaskFoo", "TaskBar");
+
+            Stream stream = await service.ReturnStream();
+            string streamData =  Encoding.UTF8.GetString((stream as MemoryStream).ToArray());
+            Console.WriteLine($"ReturnStream: {streamData}");
         }
 
         public async Task TestConcatAsync(int iterations = 1000)

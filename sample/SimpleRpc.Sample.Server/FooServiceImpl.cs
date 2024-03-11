@@ -1,6 +1,8 @@
 ﻿using SimpleRpc.Sample.Shared;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SimpleRPC.Sample.Server
@@ -41,6 +43,17 @@ namespace SimpleRPC.Sample.Server
         {
             await Task.CompletedTask;
             return collection;
+        }
+
+        public async Task<Stream> ReturnStream()
+        {
+            await Task.Yield();
+
+            MemoryStream stream = new MemoryStream();
+            byte[] buffer = Encoding.UTF8.GetBytes("The quick brown fox jumps over the lazy dog");
+            stream.Write(buffer, 0, buffer.Length);
+            stream.Position = 0;
+            return stream;
         }
 
         public Task<T> ThrowException<T>()

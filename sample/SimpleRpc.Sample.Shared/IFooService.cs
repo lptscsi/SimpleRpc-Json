@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace SimpleRpc.Sample.Shared
@@ -14,6 +15,8 @@ namespace SimpleRpc.Sample.Shared
         Task<string> ConcatAsync(string a, string b);
 
         Task<ICollection<T>> ReturnGenericType<T>(ICollection<T> collection);
+
+        Task<Stream> ReturnStream();
 
         Task<T> ThrowException<T>();
     }

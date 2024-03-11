@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SimpleRpc.Serialization;
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace SimpleRpc
             this._logger = logger;
         }
 
-        public async Task<RpcResponse> Invoke(RpcRequest request)
+        public async Task<object> Invoke(RpcRequest request)
         {
             object result = null;
             RpcError rpcError = null;
@@ -59,11 +60,18 @@ namespace SimpleRpc
                 }
             }
 
-            return new RpcResponse
+            if (result is Stream && rpcError == null)
             {
-                Result = result,
-                Error = rpcError
-            };
+                return result;
+            }
+            else
+            {
+                return new RpcResponse
+                {
+                    Result = result,
+                    Error = rpcError
+                };
+            }
         }
 
         private static async Task<object> InvokeInternal(IServiceProvider serviceProvider, RpcRequest request)

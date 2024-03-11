@@ -1,5 +1,6 @@
 ﻿using SimpleRpc.Serialization;
 using SimpleRpc.Transports.Abstractions.Client;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -44,14 +45,32 @@ namespace SimpleRpc.Transports.Http.Client
 
                     var stream = await httpResponseMessage.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
-                    var rpcResponse = await _serializer.Deserialize<RpcResponse>(stream);
+                    string responseMediaType = httpResponseMessage.Content.Headers.ContentType.MediaType;
 
-                    if (rpcResponse.Error != null)
+                    if (_serializer.ContentType == responseMediaType)
                     {
-                        throw new RpcException(rpcResponse.Error);
-                    }
+                        var rpcResponse = await _serializer.Deserialize<RpcResponse>(stream);
 
-                    return _serializer.UnpackResult<T>(rpcRequest, rpcResponse);
+                        if (rpcResponse.Error != null)
+                        {
+                            throw new RpcException(rpcResponse.Error);
+                        }
+
+                        return _serializer.UnpackResult<T>(rpcRequest, rpcResponse);
+                    }
+                    else if (responseMediaType == System.Net.Mime.MediaTypeNames.Application.Octet 
+                        &&  (typeof(T) == typeof(object) || typeof(Stream).IsAssignableTo(typeof(T)))
+                        )
+                    {
+                        MemoryStream memoryStream = new MemoryStream();
+                        await stream.CopyToAsync(memoryStream);
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        return (T)(object)memoryStream;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Unexpected response type: {responseMediaType}");
+                    }
                 }
             }
         }
