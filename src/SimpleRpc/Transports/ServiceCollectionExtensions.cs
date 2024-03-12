@@ -27,21 +27,35 @@ namespace SimpleRpc.Transports
                 throw new ArgumentNullException(nameof(options));
             }
 
-            services.AddHttpClient(clientName, (client) => {
-                var url = new Uri(options.Url);
-                client.BaseAddress = url;
-
-                if (options.DefaultRequestHeaders != null)
+            services
+                .AddHttpClient(clientName, (client) =>
                 {
-                    foreach (var header in options.DefaultRequestHeaders)
+                    var url = new Uri(options.Url);
+                    client.BaseAddress = url;
+
+                    if (options.DefaultRequestHeaders != null)
                     {
-                        client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                        foreach (var header in options.DefaultRequestHeaders)
+                        {
+                            client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                        }
                     }
-                }
-                client.DefaultRequestHeaders.Add(Constants.Other.ApplicationName, options.ApplicationName);
-                client.DefaultRequestHeaders.ConnectionClose = false;
-                client.DefaultRequestHeaders.Host = url.Host;
-            });
+                    client.DefaultRequestHeaders.Add(Constants.Other.ApplicationName, options.ApplicationName);
+                    client.DefaultRequestHeaders.ConnectionClose = false;
+                    client.DefaultRequestHeaders.Host = url.Host;
+                })
+              .ConfigurePrimaryHttpMessageHandler(sp =>
+              {
+                  var handler = new HttpClientHandler()
+                  {
+                      MaxConnectionsPerServer = 10
+                  };
+                  return handler;
+              })
+              .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+
+
+
 
             services.TryAddSingleton<IClientConfigurationManager, ClientConfigurationManager>();
             services.AddSingleton(typeof(ClientConfiguration), (sp)=>
