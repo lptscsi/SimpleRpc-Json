@@ -18,7 +18,6 @@ namespace SimpleRpc.Sample.Client
                 Url = "http://127.0.0.1:5000/rpc"
             });
 
-            sc.AddSimpleRpcProxy<IFooService>("sample");
             sc.AddTransient<DemoClient>();
             return sc.BuildServiceProvider();
         }

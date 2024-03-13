@@ -68,10 +68,13 @@ namespace SimpleRpc.Transports
                 };
             });
 
+
+            services.AddSimpleRpcProxy<TService>(clientName);
+
             return services;
         }
 
-        public static IServiceCollection AddSimpleRpcProxy<T>(this IServiceCollection services, string clientName)
+        static IServiceCollection AddSimpleRpcProxy<T>(this IServiceCollection services, string clientName)
             where T : class
         {
             if (string.IsNullOrEmpty(clientName))
